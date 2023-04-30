@@ -12,4 +12,8 @@ public interface ContentService {
                                         int size) throws Exception;
 
     long saveContent(ContentReqDTO dto) throws Exception;
+
+    long updateContent(ContentReqDTO dto, String contentID) throws Exception;
+
+    String deleteContent(String contentID) throws Exception;
 }

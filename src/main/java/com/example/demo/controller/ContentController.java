@@ -33,4 +33,16 @@ public class ContentController {
         ContentReqDTO dto = mapper.readValue(dtoToJsonString, ContentReqDTO.class);
         return contentService.saveContent(dto);
     }
+
+    @PutMapping(path = "/{contentID}/update")
+    public long updateContent(@PathVariable String contentID,
+                              @RequestBody String dtoToJsonString) throws Exception {
+        ContentReqDTO dto = mapper.readValue(dtoToJsonString, ContentReqDTO.class);
+        return contentService.updateContent(dto, contentID);
+    }
+
+    @DeleteMapping(path = "/{contentID}/delete")
+    public String deleteContent(@PathVariable String contentID) throws Exception {
+        return contentService.deleteContent(contentID);
+    }
 }
