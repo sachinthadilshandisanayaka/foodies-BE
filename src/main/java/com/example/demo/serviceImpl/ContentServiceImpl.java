@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 @Service
@@ -56,6 +57,41 @@ public class ContentServiceImpl implements ContentService {
             throw new Exception("Content type is required");
         }
         return persistEntity(mapDtoToEntity(dto)).getCntID();
+    }
+
+    @Override
+    public long updateContent(ContentReqDTO dto, String contentID) throws Exception {
+        if (stringValidation.isNullOrEmpty(dto.getType())) {
+            throw new Exception("Content type is required");
+        }
+        if (stringValidation.isNullOrEmpty(contentID)) {
+            throw new Exception("Content id is required");
+        }
+        TMnTrContent content = contentRepository.getContentByCntID(Long.parseLong(contentID));
+        if (Objects.isNull(content)) {
+            throw new Exception("Content id is invalid :" + contentID);
+        }
+        content.setCntDescription(stringValidation.isNullOrEmpty(dto.getDescription()) ? content.getCntDescription() : dto.getDescription());
+        content.setCntType(stringValidation.isNullOrEmpty(dto.getType()) ? content.getCntType() : dto.getType());
+        content.setModifyDate(new Date());
+        return persistEntity(content).getCntID();
+    }
+
+    @Override
+    public String deleteContent(String contentID) throws Exception {
+        if (stringValidation.isNullOrEmpty(contentID)) {
+            throw new Exception("Content id is required");
+        }
+        TMnTrContent content = contentRepository.getContentByCntID(Long.parseLong(contentID));
+        if (Objects.isNull(content)) {
+            throw new Exception("Content id is invalid :" + contentID);
+        }
+        try {
+            contentRepository.delete(content);
+            return "Delete success";
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
     }
 
     private TMnTrContent mapDtoToEntity(ContentReqDTO dto) {
