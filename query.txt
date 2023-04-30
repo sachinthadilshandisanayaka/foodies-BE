@@ -1,0 +1,26 @@
+SELECT c.*, COUNT(cm."CMT_ID") AS "COMMENT_COUNT"
+FROM "FOODY_MN"."T_MN_TR_CONTENT" c
+         LEFT JOIN "FOODY_MN"."T_MN_TR_COMMENT" cm ON c."CNT_ID" = cm."CMT_CNT_ID"
+GROUP BY c."CNT_ID";
+
+SELECT c."CNT_ID",
+       c."CNT_TYPE",
+       COUNT(DISTINCT com."CMT_ID") AS "COMMENT_COUNT",
+       COUNT(DISTINCT rct."RCT_ID")         AS "REACT_COUNT"
+FROM "FOODY_MN"."T_MN_TR_CONTENT" c
+         LEFT JOIN
+     "FOODY_MN"."T_MN_TR_COMMENT" com ON c."CNT_ID" = com."CMT_CNT_ID"
+         LEFT JOIN
+     "FOODY_MN"."T_MN_TR_REACT" rct ON c."CNT_ID" = rct."RCT_CNT_ID"
+GROUP BY c."CNT_ID",
+         c."CNT_TYPE";
+
+SELECT c.*,
+       COUNT(DISTINCT com."CMT_ID") AS "COMMENT_COUNT",
+       COUNT(DISTINCT rct."RCT_ID")         AS "REACT_COUNT"
+FROM "FOODY_MN"."T_MN_TR_CONTENT" c
+         LEFT JOIN
+     "FOODY_MN"."T_MN_TR_COMMENT" com ON c."CNT_ID" = com."CMT_CNT_ID"
+         LEFT JOIN
+     "FOODY_MN"."T_MN_TR_REACT" rct ON c."CNT_ID" = rct."RCT_CNT_ID"
+GROUP BY c."CNT_ID";
