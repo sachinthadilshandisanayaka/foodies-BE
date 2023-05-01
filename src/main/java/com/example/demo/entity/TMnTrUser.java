@@ -24,8 +24,7 @@ public class TMnTrUser {
     @Column(name = "\"USER_PASSWORD\"", nullable = false)
     private String userPassword;
 
-    @NotEmpty(message = "User email is required")
-    @Column(name = "\"USER_EMAIL\"", nullable = false)
+    @Column(name = "\"USER_EMAIL\"")
     private String userEmail;
 
     @Temporal(TemporalType.TIMESTAMP)
