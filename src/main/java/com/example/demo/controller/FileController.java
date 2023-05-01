@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.content.ContentReqDTO;
 import com.example.demo.dto.content.ImageReqDTO;
+import com.example.demo.dto.content.ImageResDTO;
 import com.example.demo.service.FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +26,10 @@ public class FileController {
                                                @RequestParam List<MultipartFile> files) throws Exception {
         ImageReqDTO dto = new ImageReqDTO(Long.parseLong(contentId), files);
         return ResponseEntity.ok().body(fileService.uploadFiles(dto));
+    }
+
+    @GetMapping(path = "/content/{contentId}/get")
+    public ResponseEntity<List<ImageResDTO>> getDocument(@PathVariable String contentId) throws Exception {
+        return ResponseEntity.ok().body(fileService.getByContentId(contentId));
     }
 }

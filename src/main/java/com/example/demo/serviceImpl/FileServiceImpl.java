@@ -1,13 +1,13 @@
 package com.example.demo.serviceImpl;
 
 import com.example.demo.dto.content.ImageReqDTO;
+import com.example.demo.dto.content.ImageResDTO;
 import com.example.demo.entity.TMnTrContent;
 import com.example.demo.entity.TMnTrDocument;
+import com.example.demo.function.StringValidation;
 import com.example.demo.repository.ContentRepository;
 import com.example.demo.repository.DocumentRepository;
 import com.example.demo.service.FileService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,11 +20,26 @@ import java.util.Objects;
 public class FileServiceImpl implements FileService {
     private final DocumentRepository documentRepository;
     private final ContentRepository contentRepository;
+    private final StringValidation stringValidation;
 
     FileServiceImpl(DocumentRepository documentRepository,
-                    ContentRepository contentRepository) {
+                    ContentRepository contentRepository,
+                    StringValidation stringValidation) {
         this.documentRepository = documentRepository;
         this.contentRepository = contentRepository;
+        this.stringValidation = stringValidation;
+    }
+
+    @Override
+    public List<ImageResDTO> getByContentId(String contentId) throws Exception {
+        if (stringValidation.isNullOrEmpty(contentId)) {
+            throw new Exception("Content id is required");
+        }
+        List<TMnTrDocument> documentList = documentRepository.getContentByCntID(Long.parseLong(contentId));
+        if (Objects.isNull(documentList) || documentList.isEmpty()) {
+            throw new Exception("Invalid document id");
+        }
+        return mapEntityToDto(documentList);
     }
 
     @Override
@@ -71,5 +86,22 @@ public class FileServiceImpl implements FileService {
             entityList.add(entity);
         });
         return entityList;
+    }
+
+    private List<ImageResDTO> mapEntityToDto(List<TMnTrDocument> entities) {
+        List<ImageResDTO> dtoList = new ArrayList<>();
+        if (Objects.nonNull(entities) && !entities.isEmpty()) {
+            entities.forEach(v -> {
+                ImageResDTO dto = new ImageResDTO();
+                dto.setId(v.getDocID());
+                dto.setContentId(v.getContent().getCntID());
+                dto.setFileName(v.getDocName());
+                dto.setFileType(v.getDocType());
+                dto.setBytes(v.getDocBytes());
+                dto.setCreatedDate(v.getCreateDate());
+                dtoList.add(dto);
+            });
+        }
+        return dtoList;
     }
 }
