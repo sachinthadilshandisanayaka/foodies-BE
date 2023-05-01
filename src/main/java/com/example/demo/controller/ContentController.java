@@ -5,6 +5,7 @@ import com.example.demo.dto.content.ContentResDTO;
 import com.example.demo.service.ContentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,11 +22,11 @@ public class ContentController {
     }
 
     @GetMapping(path = "/paginated_search")
-    public List<ContentResDTO> getContent(@RequestParam(required = false) Long contentID,
-                                          @RequestParam(required = false) Long userId,
-                                          @RequestParam(name = "page") int page,
-                                          @RequestParam(name = "size") int size) throws Exception {
-        return contentService.paginatedSearch(contentID, userId, page, size);
+    public ResponseEntity<List<ContentResDTO>> getContent(@RequestParam(required = false) Long contentID,
+                                                          @RequestParam(required = false) Long userId,
+                                                          @RequestParam(name = "page") int page,
+                                                          @RequestParam(name = "size") int size) throws Exception {
+        return ResponseEntity.ok().body(contentService.paginatedSearch(contentID, userId, page, size));
     }
 
     @PostMapping(path = "/save")
