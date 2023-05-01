@@ -1,7 +1,9 @@
 package com.example.demo.serviceImpl;
 
 import com.example.demo.dto.comment.CommentReqDTO;
+import com.example.demo.dto.comment.CommentResDTO;
 import com.example.demo.dto.react.ReactReqDTO;
+import com.example.demo.dto.react.ReactResDTO;
 import com.example.demo.entity.TMnTrComment;
 import com.example.demo.entity.TMnTrContent;
 import com.example.demo.entity.TMnTrReact;
@@ -15,7 +17,9 @@ import com.example.demo.service.CommentService;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -54,6 +58,72 @@ public class CommentServiceImpl implements CommentService {
             throw new Exception("User id is required");
         }
         return persistEntity(mapDtoToEntity(dto)).getCmtID();
+    }
+
+    @Override
+    public List<CommentResDTO> getComment(String contentID) throws Exception {
+        List<CommentResDTO> dtoList = new ArrayList<>();
+        if (Objects.isNull(contentID)) {
+            throw new Exception("Content id is required");
+        }
+        List<TMnTrComment> comments = commentRepository.getCommentByCntID(Long.parseLong(contentID));
+        if (Objects.isNull(comments) || comments.isEmpty()) {
+            return dtoList;
+        }
+        comments.forEach(v -> {
+            try {
+                dtoList.add(mapEntityToDto(v));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return dtoList;
+    }
+
+    @Override
+    public String updateComment(String commentID, CommentReqDTO dto) throws Exception {
+        List<CommentResDTO> dtoList = new ArrayList<>();
+        if (Objects.isNull(commentID)) {
+            throw new Exception("Comment id is required");
+        }
+        TMnTrComment comment = commentRepository.getCommentByID(Long.parseLong(commentID));
+        if (Objects.isNull(comment)) {
+            throw new Exception("Invalid comment id :" + commentID);
+        }
+        comment.setCmtDescription(dto.getDescription());
+        persistEntity(comment);
+        return "Update success";
+    }
+
+    @Override
+    public String deleteComment(String contentId, String userId) throws Exception {
+        if (stringValidation.isNullOrEmpty(contentId)) {
+            throw new Exception("Content id is required");
+        }
+        if (Objects.isNull(userId)) {
+            throw new Exception("User id is required");
+        }
+        TMnTrComment comment = commentRepository.getCommentByCntIDAndUserID(Long.parseLong(contentId), Long.parseLong(userId));
+        if (Objects.isNull(comment)) {
+            throw new Exception("Invalid User id or Content id");
+        }
+        try {
+            commentRepository.delete(comment);
+            return "Delete success";
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    private CommentResDTO mapEntityToDto(TMnTrComment entity) throws Exception {
+        CommentResDTO dto = new CommentResDTO();
+        dto.setId(entity.getCmtID());
+        dto.setContentId(entity.getContent().getCntID());
+        dto.setUserID(entity.getUser().getUserId());
+        dto.setUserName(entity.getUser().getUserName());
+        dto.setDescription(entity.getCmtDescription());
+        dto.setCreateDate(entity.getCreateDate());
+        return dto;
     }
 
     private TMnTrComment mapDtoToEntity(CommentReqDTO dto) throws Exception {
