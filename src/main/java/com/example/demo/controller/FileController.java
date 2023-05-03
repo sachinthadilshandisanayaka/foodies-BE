@@ -1,10 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.content.ContentReqDTO;
 import com.example.demo.dto.content.ImageReqDTO;
 import com.example.demo.dto.content.ImageResDTO;
 import com.example.demo.service.FileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
