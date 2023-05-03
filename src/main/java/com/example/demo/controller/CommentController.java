@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.comment.CommentReqDTO;
 import com.example.demo.dto.comment.CommentResDTO;
-import com.example.demo.dto.react.ReactResDTO;
 import com.example.demo.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
