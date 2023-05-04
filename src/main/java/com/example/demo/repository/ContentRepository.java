@@ -18,9 +18,11 @@ public interface ContentRepository extends JpaRepository<TMnTrContent, Long> {
     @Query("SELECT new com.example.demo.dto.content.ContentResDTO(t, COUNT(DISTINCT c.cmtID), COUNT(DISTINCT r.rctId)) " +
             "FROM TMnTrContent t LEFT JOIN TMnTrComment c ON t.cntID = c.content.cntID LEFT JOIN TMnTrReact r ON t.cntID = r.content.cntID " +
             " WHERE (:cntId IS NULL OR (:cntId IS NOT NULL AND t.cntID = :cntId)) AND " +
-            " (:userId IS NULL OR (:userId IS NOT NULL AND t.user.userId = :userId)) " +
+            " (:userId IS NULL OR (:userId IS NOT NULL AND t.user.userId = :userId)) AND " +
+            " (:type IS NULL OR (:type IS NOT NULL AND t.cntType = :type)) " +
             " GROUP BY t.cntID")
-    Page<ContentResDTO> findAllBy(@Param("cntId") Long cntId,
+    public Page<ContentResDTO> findAllBy(@Param("cntId") Long cntId,
                                   @Param("userId") Long userId,
+                                  @Param("type") String type,
                                   Pageable pageable);
 }

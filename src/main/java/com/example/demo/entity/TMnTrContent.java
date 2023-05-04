@@ -22,6 +22,13 @@ public class TMnTrContent {
     @Column(name = "\"CNT_DESCRIPTION\"")
     private String cntDescription;
 
+    @Column(name = "\"CNT_LOCATION\"")
+    private String cntLocation;
+
+    @Column(name = "\"CNT_EVENT_TIME\"")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date cntEventTime;
+
     @Version
     @Column(name = "\"VERSION\"", nullable = false)
     private int version;
@@ -33,6 +40,22 @@ public class TMnTrContent {
     @Column(name = "\"MODIFY_DATE\"")
     @Temporal(TemporalType.TIMESTAMP)
     private Date modifyDate;
+
+    public String getCntLocation() {
+        return cntLocation;
+    }
+
+    public void setCntLocation(String cntLocation) {
+        this.cntLocation = cntLocation;
+    }
+
+    public Date getCntEventTime() {
+        return cntEventTime;
+    }
+
+    public void setCntEventTime(Date cntEventTime) {
+        this.cntEventTime = cntEventTime;
+    }
 
     public long getCntID() {
         return cntID;

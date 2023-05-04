@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.logging.Logger;
 
 @Service
 public class ContentServiceImpl implements ContentService {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
     private final StringValidation stringValidation;
     private final ContentRepository contentRepository;
     private final UsersRepository usersRepository;
@@ -38,6 +41,7 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public List<ContentResDTO> paginatedSearch(Long contentID,
                                                Long userId,
+                                               String type,
                                                int page,
                                                int size) throws Exception {
         if (page < 1) {
@@ -46,8 +50,9 @@ public class ContentServiceImpl implements ContentService {
         if (size < 1) {
             throw new Exception("Size should be a value greater than 0");
         }
+        type = stringValidation.isNullOrEmpty(type) ? null : type;
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<ContentResDTO> resDTOPage = contentRepository.findAllBy(contentID, userId, pageable);
+        Page<ContentResDTO> resDTOPage = contentRepository.findAllBy(contentID, userId, type, pageable);
         return resDTOPage.toList();
     }
 
@@ -71,6 +76,8 @@ public class ContentServiceImpl implements ContentService {
         if (Objects.isNull(content)) {
             throw new Exception("Content id is invalid :" + contentID);
         }
+        content.setCntLocation(stringValidation.isNullOrEmpty(dto.getLocation()) ? content.getCntLocation() : dto.getLocation());
+        content.setCntEventTime(stringValidation.isNullOrEmpty(dto.getEventTime()) ? content.getCntEventTime() : formatter.parse(dto.getEventTime()));
         content.setCntDescription(stringValidation.isNullOrEmpty(dto.getDescription()) ? content.getCntDescription() : dto.getDescription());
         content.setCntType(stringValidation.isNullOrEmpty(dto.getType()) ? content.getCntType() : dto.getType());
         content.setModifyDate(new Date());
@@ -94,11 +101,13 @@ public class ContentServiceImpl implements ContentService {
         }
     }
 
-    private TMnTrContent mapDtoToEntity(ContentReqDTO dto) {
+    private TMnTrContent mapDtoToEntity(ContentReqDTO dto) throws ParseException {
         TMnTrContent entity = new TMnTrContent();
         TMnTrUser user = usersRepository.getByUserID(1);
         entity.setCntType(dto.getType());
         entity.setCntDescription(dto.getDescription());
+        entity.setCntLocation(dto.getLocation());
+        entity.setCntEventTime(stringValidation.isNullOrEmpty(dto.getEventTime()) ? null : formatter.parse(dto.getEventTime()));
         entity.setVersion((short) 1);
         entity.setUser(user);
         entity.setCreateDate(new Date());
