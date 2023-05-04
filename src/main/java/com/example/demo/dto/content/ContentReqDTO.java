@@ -16,6 +16,8 @@ public class ContentReqDTO {
     private Long userId;
     private String type;
     private String description;
+    private String location;
+    private String eventTime;
     private int version;
     private Date createdDate;
     private Date modifyDate;

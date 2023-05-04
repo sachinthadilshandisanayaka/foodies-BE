@@ -16,6 +16,8 @@ public class ContentResDTO {
     private String type;
     private String description;
     private int version;
+    private String location;
+    private Date eventTime;
     private Date createdDate;
     private Date modifyDate;
     private int commentCount;
@@ -25,6 +27,8 @@ public class ContentResDTO {
         this.id = content.getCntID();
         this.userId = content.getUser().getUserId();
         this.type = content.getCntType();
+        this.location = content.getCntLocation();
+        this.eventTime = content.getCntEventTime();
         this.description = content.getCntDescription();
         this.version = content.getVersion();
         this.createdDate = content.getCreateDate();
