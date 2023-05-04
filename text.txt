@@ -1,47 +1,160 @@
-Try this code
+SEQUENCE GENERATION, RUN below codes
+---
+CREATE SEQUENCE comment_id_seq START 1;
+CREATE SEQUENCE content_id_seq START 1;
+CREATE SEQUENCE document_id_seq START 1;
+CREATE SEQUENCE event_id_seq START 1;
+CREATE SEQUENCE rct_id_seq START 1;
+CREATE SEQUENCE user_id_seq START 1;
+---
 
-**SERVICE**
+DATABASE DESIGN
+RUN BELOW CODE
 
-    Pageable pageable = PageRequest.of(page - 1, size);
-    Page<ContentResDTO> resDTOPage = contentRepository.findAllBy(contentID, userId, pageable);
+---
+create table "FOODY_MN"."T_MN_TR_COMMENT"
+(
+	"CMT_ID" bigint not null
+		constraint """t_mn_tr_comment""_pk"
+			primary key,
+	"CMT_CNT_ID" bigint not null
+		constraint "comment""___fk_""content"
+			references "FOODY_MN"."T_MN_TR_CONTENT"
+				on update cascade on delete cascade,
+	"CMT_USER_ID" bigint not null
+		constraint "comment""___fk_""user"
+			references "FOODY_MN"."T_MN_TR_USER"
+				on update cascade on delete cascade,
+	"CMT_DESCRIPTION" varchar(220) not null,
+	"VERSION" integer,
+	"CREATED_DATE" timestamp not null
+);
 
-**REPOSITORY**
+alter table "FOODY_MN"."T_MN_TR_COMMENT" owner to postgres;
 
-    @Query("SELECT new com.example.demo.dto.content.ContentResDTO(t, COUNT(DISTINCT c.cmtID), COUNT(DISTINCT r.rctId)) " +
-                "FROM TMnTrContent t LEFT JOIN TMnTrComment c ON t.cntID = c.content.cntID LEFT JOIN TMnTrReact r ON t.cntID = r.content.cntID " +
-                " WHERE (:cntId IS NULL OR (:cntId IS NOT NULL AND t.cntID = :cntId)) AND " +
-                " (:userId IS NULL OR (:userId IS NOT NULL AND t.user.userId = :userId)) " +
-                " GROUP BY t.cntID")
-        Page<ContentResDTO> findAllBy(@Param("cntId") Long cntId,
-                                      @Param("userId") Long userId,
-                                      Pageable pageable);
+create unique index """t_mn_tr_comment""_""cmt_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_COMMENT" ("CMT_ID");
 
-**DTO**
+create table "FOODY_MN"."T_MN_TR_CONTENT"
+(
+	"CNT_ID" bigint not null
+		constraint t_mn_tr_content_pk
+			primary key,
+	"CNT_TYPE" varchar(200) not null,
+	"CNT_USER_ID" bigint not null
+		constraint content_fk_user
+			references "FOODY_MN"."T_MN_TR_USER"
+				on update cascade on delete cascade,
+	"CNT_DESCRIPTION" varchar(220),
+	"VERSION" integer,
+	"CREATED_DATE" timestamp not null,
+	"MODIFY_DATE" timestamp
+);
 
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public class ContentResDTO {
-        private long id;
-        private long userId;
-        private String type;
-        private String description;
-        private int version;
-        private Date createdDate;
-        private Date modifyDate;
-        private int commentCount;
-        private int reactCount;
-    
-        public ContentResDTO(TMnTrContent content, long commentCount, long reactCount) {
-            this.id = content.getCntID();
-            this.userId = content.getUser().getUserId();
-            this.type = content.getCntType();
-            this.description = content.getCntDescription();
-            this.version = content.getVersion();
-            this.createdDate = content.getCreateDate();
-            this.modifyDate = content.getModifyDate();
-            this.commentCount = (int) commentCount;
-            this.reactCount = (int) reactCount;
-        }
-    
-    }
+alter table "FOODY_MN"."T_MN_TR_CONTENT" owner to postgres;
+
+create unique index "t_mn_tr_content_""cnt_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_CONTENT" ("CNT_ID");
+
+create table "FOODY_MN"."T_MN_TR_DOCUMENT"
+(
+	"DOC_ID" bigint not null
+		constraint """t_mn_tr_document""_pk"
+			primary key,
+	"DOC_CNT_ID" bigint not null
+		constraint "document""_fk_""content"
+			references "FOODY_MN"."T_MN_TR_CONTENT"
+				on update cascade on delete cascade,
+	"DOC_NAME" varchar(200) not null,
+	"DOC_TYPE" varchar(50) not null,
+	"DOC_BYTES" bytea not null,
+	"CREATED_DATE" timestamp not null,
+	"VERSION" integer not null
+);
+
+comment on column "FOODY_MN"."T_MN_TR_DOCUMENT"."DOC_CNT_ID" is 'FOREING KYE FOR CONTENT TABLE';
+
+alter table "FOODY_MN"."T_MN_TR_DOCUMENT" owner to postgres;
+
+create unique index """t_mn_tr_document""_""doc_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_DOCUMENT" ("DOC_ID");
+
+create table "FOODY_MN"."T_MN_TR_EVENT"
+(
+	"ENT_ID" bigint not null
+		constraint """t_mn_tr_event""_pk"
+			primary key,
+	"ENT_USER_ID" bigint not null
+		constraint "event""_fk_""user"
+			references "FOODY_MN"."T_MN_TR_USER"
+				on update cascade on delete cascade,
+	"ENT_DESCRIPTION" varchar(220),
+	"ENT_LOCATION" varchar(220),
+	"ENT_TIME" timestamp,
+	"CREATED_DATE" timestamp,
+	modify_date timestamp,
+	version integer not null
+);
+
+comment on column "FOODY_MN"."T_MN_TR_EVENT"."ENT_USER_ID" is 'FOREING KEY FOR ''T_MN_TR_USER'' TABLE';
+
+alter table "FOODY_MN"."T_MN_TR_EVENT" owner to postgres;
+
+create unique index """t_mn_tr_event""_""ent_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_EVENT" ("ENT_ID");
+
+create table "FOODY_MN"."T_MN_TR_REACT"
+(
+	"RCT_ID" bigint not null
+		constraint """t_mn_tr_react""_pk"
+			primary key,
+	"RCT_COUNT" integer default 1 not null,
+	"RCT_CNT_ID" bigint not null
+		constraint "react""_fk_""content"
+			references "FOODY_MN"."T_MN_TR_CONTENT"
+				on update cascade on delete cascade,
+	"RCT_USER_ID" bigint not null
+		constraint "react""_fk_""user"
+			references "FOODY_MN"."T_MN_TR_USER"
+				on update cascade on delete cascade,
+	"RCT_MODE" varchar(30) default 'LI'::character varying,
+	"VERSION" integer,
+	"CREATED_DATE" timestamp not null
+);
+
+comment on column "FOODY_MN"."T_MN_TR_REACT"."RCT_CNT_ID" is 'FOREING KEY FOR CONTENT TABLE';
+
+comment on column "FOODY_MN"."T_MN_TR_REACT"."RCT_USER_ID" is 'Reacted person user id, forieng key from T_MN_TR_USER table';
+
+comment on column "FOODY_MN"."T_MN_TR_REACT"."RCT_MODE" is 'LIKE = LI, LOVE = LO, BAD = B';
+
+alter table "FOODY_MN"."T_MN_TR_REACT" owner to postgres;
+
+create unique index """t_mn_tr_react""_""rct_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_REACT" ("RCT_ID");
+
+create table "FOODY_MN"."T_MN_TR_USER"
+(
+	"USER_ID" bigint not null
+		constraint t_mn_tr_user_pk
+			primary key,
+	"USER_NAME" varchar(200) not null,
+	"USER_PASSWORD" varchar(200) not null,
+	"USER_EMAIL" varchar(200),
+	"CREATED_DATE" timestamp not null,
+	"MODIFY_DATE" timestamp
+);
+
+alter table "FOODY_MN"."T_MN_TR_USER" owner to postgres;
+
+create unique index "t_mn_tr_user_""user_email""_uindex"
+	on "FOODY_MN"."T_MN_TR_USER" ("USER_EMAIL");
+
+create unique index "t_mn_tr_user_""user_id""_uindex"
+	on "FOODY_MN"."T_MN_TR_USER" ("USER_ID");
+
+create unique index "t_mn_tr_user_""user_name""_uindex"
+	on "FOODY_MN"."T_MN_TR_USER" ("USER_NAME");
+
+
+---
