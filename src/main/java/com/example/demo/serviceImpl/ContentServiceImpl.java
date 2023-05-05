@@ -3,9 +3,11 @@ package com.example.demo.serviceImpl;
 import com.example.demo.dto.content.ContentReqDTO;
 import com.example.demo.dto.content.ContentResDTO;
 import com.example.demo.entity.TMnTrContent;
+import com.example.demo.entity.TMnTrReact;
 import com.example.demo.entity.TMnTrUser;
 import com.example.demo.function.StringValidation;
 import com.example.demo.repository.ContentRepository;
+import com.example.demo.repository.ReactRepository;
 import com.example.demo.repository.UsersRepository;
 import com.example.demo.service.ContentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,31 +30,39 @@ public class ContentServiceImpl implements ContentService {
     private final StringValidation stringValidation;
     private final ContentRepository contentRepository;
     private final UsersRepository usersRepository;
+    private final ReactRepository reactRepository;
 
     @Autowired
     ContentServiceImpl(ContentRepository contentRepository,
                        StringValidation stringValidation,
-                       UsersRepository usersRepository) {
+                       UsersRepository usersRepository,
+                       ReactRepository reactRepository) {
         this.contentRepository = contentRepository;
         this.stringValidation = stringValidation;
         this.usersRepository = usersRepository;
+        this.reactRepository = reactRepository;
     }
 
     @Override
     public List<ContentResDTO> paginatedSearch(Long contentID,
                                                Long userId,
+                                               Long loginUserId,
                                                String type,
                                                int page,
                                                int size) throws Exception {
-        if (page < 1) {
-            throw new Exception("Page should be a value greater than 0");
-        }
-        if (size < 1) {
-            throw new Exception("Size should be a value greater than 0");
-        }
+        if (page < 1) throw new Exception("Page should be a value greater than 0");
+        if (size < 1) throw new Exception("Size should be a value greater than 0");
+
         type = stringValidation.isNullOrEmpty(type) ? null : type;
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<ContentResDTO> resDTOPage = contentRepository.findAllBy(contentID, userId, type, pageable);
+        if (resDTOPage.hasContent()) {
+            resDTOPage.toList().forEach(v -> {
+                TMnTrReact react = reactRepository.getContentByCntIDAndUserID(v.getId(), loginUserId);
+                if (Objects.nonNull(react)) v.setIsReact(Boolean.TRUE);
+                else v.setIsReact(Boolean.FALSE);
+            });
+        }
         return resDTOPage.toList();
     }
 

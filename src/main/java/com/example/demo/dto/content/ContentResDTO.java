@@ -22,6 +22,7 @@ public class ContentResDTO {
     private Date modifyDate;
     private int commentCount;
     private int reactCount;
+    private Boolean isReact;
 
     public ContentResDTO(TMnTrContent content, long commentCount, long reactCount) {
         this.id = content.getCntID();
