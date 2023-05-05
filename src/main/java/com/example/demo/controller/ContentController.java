@@ -23,15 +23,17 @@ public class ContentController {
 
     /**
      * @param type 'P' post, 'E' event
+     * @param loginUserId Login user id. It is required
      * @ApiNote
      */
     @GetMapping(path = "/paginated_search")
     public ResponseEntity<List<ContentResDTO>> getContent(@RequestParam(required = false) Long contentID,
                                                           @RequestParam(required = false) Long userId,
                                                           @RequestParam(required = false) String type,
+                                                          @RequestParam Long loginUserId,
                                                           @RequestParam(name = "page") int page,
                                                           @RequestParam(name = "size") int size) throws Exception {
-        return ResponseEntity.ok().body(contentService.paginatedSearch(contentID, userId, type, page, size));
+        return ResponseEntity.ok().body(contentService.paginatedSearch(contentID, userId, loginUserId, type, page, size));
     }
 
     @PostMapping(path = "/save")

@@ -8,6 +8,7 @@ import java.util.List;
 public interface ContentService {
     List<ContentResDTO> paginatedSearch(Long contentID,
                                         Long userId,
+                                        Long loginUserId,
                                         String type,
                                         int page,
                                         int size) throws Exception;
