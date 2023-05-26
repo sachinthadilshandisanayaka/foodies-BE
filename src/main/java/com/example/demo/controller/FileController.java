@@ -30,4 +30,10 @@ public class FileController {
     public ResponseEntity<List<ImageResDTO>> getDocument(@PathVariable String contentId) throws Exception {
         return ResponseEntity.ok().body(fileService.getByContentId(contentId));
     }
+
+    @DeleteMapping(path = "/content/{contentId}/delete")
+    public ResponseEntity<List<ImageResDTO>> deleteDocument(@PathVariable String contentId) throws Exception {
+        return ResponseEntity.ok().body(fileService.getByContentId(contentId));
+    }
+
 }
